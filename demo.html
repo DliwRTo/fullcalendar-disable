@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <link rel="stylesheet" href="demo/bootstrap.min.css">
+    <link href="demo/fullcalendar.min.css" rel='stylesheet' />
+    <link href="demo/laydate/theme/default/laydate.css" />
+    <link href="demo/layer/2.4/skin/layer.css" />
+</head>
+<title>可用不可用</title>
+<body>
+<!-- <div class="IndexRight"> -->
+    <!-- <h6 class="page_title">
+        <img src="../../images/module_title.gif">
+        <span>日程安排</span>
+        <span style="margin-left: 40%;font-size: 16px;color: #792659">南开大学 2017-2018 学年度校历</span>
+    </h6> -->
+    <div id="main" style="margin: 0 auto;text-align: center;width: 60%;">
+        <div id='calendar' ></div>
+    </div>
+
+    <!--data-toggle="modal" data-target="#myModal"-->
+    <!--<button class="btn btn-primary btn-lg" id="xianshi" >-->
+        <!--开始演示模态框-->
+    <!--</button>-->
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" >&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">安排新日程</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="state" class="col-sm-3 control-label">状态</label>
+                            <div class="col-sm-9" style="width: 65%">
+                                <select id="state" class="form-control" >
+                                    <option value="2" disabled selected>--请选择状态--</option>
+                                    <option value="1">开放</option>
+                                    <option value="0">不开放</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="Uncertain" hidden>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-3 control-label">用途</label>
+                                <div class="col-sm-9" style="width: 65%">
+                                    <select id="name" class="form-control">
+                                        <option value="0" disabled selected>--请选择用途--</option>
+                                        <option value="1" >开会</option>
+                                        <option value="2" >举办活动</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="teacher" class="col-sm-3 control-label">预约人</label>
+                                <div class="col-sm-9" style="width: 65%">
+                                    <select id="teacher" class="form-control">
+                                        <option value="0" disabled selected>--请选择预约人--</option>
+                                        <option value="1" >张三</option>
+                                        <option value="2" >李四</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="starTime" class="col-sm-3 control-label">开始时间</label>
+                            <div class="col-sm-9" style="width: 65%">
+                                <input type="text" class="form-control layui-input" id="starTime" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="endTime" class="col-sm-3 control-label">结束时间</label>
+                            <div class="col-sm-9" style="width: 65%">
+                                <input type="text" class="form-control layui-input" id="endTime" placeholder="">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="submit" type="button" class="btn btn-primary">提交</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" >关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- </div> -->
+
+</body>
+
+<script src="demo/jquery.min.js" ></script>
+<script src="demo/moment.min.js" ></script>
+<script src="demo/fullcalendar.min.js" ></script>
+<script src="demo/bootstrap.min.js" ></script>
+<script src="demo/laydate/laydate.js" ></script>
+<script  src="demo/layer/2.4/layer.js" ></script>
+
+<script>
+    laydate.render({
+        elem: '#starTime',
+        type: 'datetime'
+    });
+    laydate.render({
+        elem: '#endTime',
+        type: 'datetime'
+    });
+    $("#state").change(function () {
+        if($(this).val() == '1'){
+            $(".Uncertain").show();
+        }else {
+            $(".Uncertain").hide();
+        }
+    });
+    $('#myModal').on('hide.bs.modal', function () {
+        $("#state").val(2);
+        $("#name").val(0);
+        $("#teacher").val(0);
+        $(".Uncertain").hide();
+    });
+
+    $(document).ready(function() {
+        var date = new Date();
+        var D = date.getDate();
+        var M = date.getMonth();
+        var Y = date.getFullYear();
+        $('#calendar').fullCalendar({
+            header:{
+                left: 'prev,next,today',
+                center: 'title',
+                right: 'month,agendaDay'
+            },
+            views: {
+                month: { // name of view
+                    titleFormat: 'YYYY年MM月'
+                    // other view-specific options here
+                },
+                day: {
+                    titleFormat: 'YYYY年MM月D日'
+                }
+            },
+            navLinks: true, // can click day/week names to navigate views
+            businessHours: true, // display business hours
+            editable: false,
+            selectOverlap: function(event) {
+//                return event.rendering === 'background';
+                return event.constraint === 'disable';
+            },
+            //获取后台接口时代码
+//            events: function(start,end,timezone, callback) {
+//                $.ajax({
+//                    type: "get",
+//                    url: "",
+//                    dataType: 'json',
+//                    success: function(data) { // 获取当前月的数据
+//                        var arr = [];
+//                        if(data.code == "001") {
+//                            for (var i = 0; i < data.result.datas.length; i++) {
+//                                var title = data.result.datas[i].title;
+//                                var start = data.result.datas[i].start_time;
+//                                var end = data.result.datas[i].end_time;
+//                                var rendering = 'background';
+//                                var color =  '#d7d7d7';
+//                                arr.push({
+//                                    title : "未开放时间段",
+//                                    start : start,
+//                                    end : end,
+//                                    rendering : rendering,
+//                                    color : color
+//                                })
+//                            }
+//                            for (var j = 0; j < data.result.data.length; j++) {
+//                                var title = data.result.data[j].title;
+//                                var start = data.result.data[j].start_time;
+//                                var end = data.result.data[j].end_time;
+//                                var  constraint =  "disable";
+//                                arr.push({
+//                                    title : title,
+//                                    start : start,
+//                                    end : end,
+//                                    constraint : constraint,
+//                                })
+//                            }
+//                        }
+//                        callback(arr);
+//                    }
+//                });
+//            },
+            events: [
+                {
+                    title: 'Business Lunch',
+                    start: '2017-12-03T13:00:00',
+                    constraint: 'businessHours'
+                },
+                {
+                    title: 'Meeting',
+                    start: '2017-12-13T11:00:00',
+                    constraint: 'availableForMeeting', // defined below
+                    color: '#257e4a'
+                },
+                {
+                    title: 'Conference',
+                    start: '2017-12-18',
+                    end: '2017-12-20',
+                    color: '#d7d7d7'
+                },
+                {
+                    title: 'Party',
+                    start: '2017-12-29T20:00:00'
+                },
+                {
+                    start: '2017-12-24 00:00:00',
+                    end: '2017-12-28 00:00:00',
+                    rendering: 'background',
+                    color: '#d7d7d7'
+                },
+                {
+                    start: '2017-12-06',
+                    end: '2017-12-08',
+                    rendering: 'background',
+                    color: '#d7d7d7',
+                }
+            ],
+            selectable: true, //允许用户拖动
+            select: function( startDate, endDate, allDay, jsEvent, view ){
+                var start =$.fullCalendar.formatDate(startDate,'YYYY-MM-DD 00:00:00');
+                var end =$.fullCalendar.formatDate(endDate,'YYYY-MM-DD 00:00:00');
+                $('#myModal').modal({
+                    keyboard: true
+                });
+                $("#starTime").val(start);
+                $("#endTime").val(end);
+            }
+        });
+    });
+    $("#submit").on("click",function () {
+        var states = $("#state").val();
+        var name = $("#name").val();
+        var teacher = $("#teacher").val();
+        var starTime = (Date.parse(new Date($("#starTime").val())))/1000;
+        var endTime = (Date.parse(new Date($("#endTime").val())))/1000;
+        $(this).attr("data-dismiss","modal");
+        $('#myModal').on('hide.bs.modal');
+        if(states == "0") {
+            $.ajax({
+                type:'post',
+                url:'',
+                data:{},
+                dataType:'json',
+                success:function (data) {
+                    if(data.code=="001"){
+                        $(this).attr("data-dismiss","modal");
+                        $('#myModal').on('hide.bs.modal');
+                        layer.msg(data.message,{icon:6},function () {
+                            $('#calendar').fullCalendar();
+                        });
+                    } else {
+                        layer.msg(data.message,{icon:2});
+                    }
+                },
+                error:function(err){
+                    console.error(err);
+                }
+            });
+        } else if(states == "1") {
+            $.ajax({
+                type:'post',
+                url:'',
+                data:{ },
+                dataType:'json',
+                success:function (data) {
+                    if(data.code=="001"){
+                        layer.msg(data.message,{icon:6},function () {
+                            $('#myModal').on('hide.bs.modal');
+                        });
+                    } else {
+                        layer.msg(data.message,{icon:2});
+                    }
+                },
+                error:function(err){
+                    console.error(err);
+                }
+            });
+        }
+
+
+    })
+
+
+</script>
+</html>

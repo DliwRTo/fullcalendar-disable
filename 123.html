@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <link href='fullcalendar.min.css' rel='stylesheet' />
+    <link href='fullcalendar.print.min.css' rel='stylesheet' media='print' />
+    <style>
+        body {margin: 40px 10px;padding: 0;font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;font-size: 14px;}
+        .IndexRight{margin:20px;}
+        .page_title{display: block; border-bottom: solid 1px #ddd;padding: 8px 14px;}
+        .page_title span{margin-left: 4px}
+        #calendar {max-width: 900px;margin: 0 auto;}
+    </style>
+</head>
+<body>
+<div class="IndexRight">
+    <h6 class="page_title">
+        <img src="../../images/module_title.gif">
+        <span>日程安排</span>
+        <span style="margin-left: 40%;font-size: 16px;color: #792659">南开大学 2017-2018 学年度校历</span>
+    </h6>
+    <div id="main" style="margin: 0 auto;text-align: center;width: 60%;">
+        <div id='calendar' ></div>
+    </div>
+
+</div>
+
+</body>
+<script src='moment.min.js'></script>
+<script src='jquery.min.js'></script>
+<script src='fullcalendar.min.js'></script>
+<script>
+
+    $(document).ready(function() {
+        var date = new Date();
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();
+        $('#calendar').fullCalendar({
+            header:{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+            },
+//            titleFormat:{
+//                month: 'yyyy年 MMMM月 ',
+//                week: "yyyy年MMM月d[ yyyy]日{'—'[MMM]月 d日}",
+//                day: 'yyyy年MMM月d日,dddd'
+//            },
+//            defaultDate: '2017-12-12',
+            navLinks: true, // can click day/week names to navigate views
+            businessHours: true, // display business hours
+            editable: false,
+            selectOverlap: function(event) {
+                return event.rendering === 'background';
+            },
+            events: [
+                {
+                    title: 'Business Lunch',
+                    start: '2017-12-03T13:00:00',
+                    constraint: 'businessHours'
+                },
+                {
+                    title: 'Meeting',
+                    start: '2017-12-13T11:00:00',
+                    constraint: 'availableForMeeting', // defined below
+                    color: '#257e4a'
+                },
+                {
+                    title: 'Conference',
+                    start: '2017-12-18',
+                    end: '2017-12-20',
+                    color: '#ff9f89'
+                },
+                {
+                    title: 'Party',
+                    start: '2017-12-29T20:00:00'
+                },
+
+                // areas where "Meeting" must be dropped
+                {
+                    id: 'availableForMeeting',
+                    start: '2017-12-11T10:00:00',
+                    end: '2017-12-11T16:00:00',
+                    rendering: 'background'
+                },
+                {
+                    id: 'availableForMeeting',
+                    start: '2017-12-13T10:00:00',
+                    end: '2017-12-13T16:00:00',
+                    rendering: 'background'
+                },
+
+                // red areas where no events can be dropped
+                {
+                    start: '2017-12-24',
+                    end: '2017-12-28',
+                    overlap: false,
+                    rendering: 'background',
+                    color: '#ff9f89'
+                },
+                {
+                    start: '2017-12-06',
+                    end: '2017-12-08',
+                    overlap: false,
+                    rendering: 'background',
+                    color: '#ff9f89',
+                    eventMouseover: true
+                }
+            ],
+            eventMouseover: function () {
+                $(this).css("cursor","not-allowed")
+            },
+//            dayClick: function(date, allDay, jsEvent, view) {
+//
+//                if (allDay) {
+//                    alert('Clicked on the entire day: ' + date);
+//                }else{
+//                    alert('Clicked on the slot: ' + date);
+//                }
+//
+//                alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+//
+//                alert('Current view: ' + view.name);
+//
+//                // change the day's background color just for fun
+//                $(this).css('background-color', 'red');
+//            }
+            selectable: true, //允许用户拖动
+            select: function( startDate, endDate, allDay, jsEvent, view ){
+                var start =$.fullCalendar.formatDate(startDate,'yyyy-MM-dd');
+                var end =$.fullCalendar.formatDate(endDate,'yyyy-MM-dd');
+                $.fancybox({
+                    'type':'ajax',
+//                    'href':'event.php?action=add&date='+start+'&end='+end
+                    'href':'/web/html/calendar/event.html'
+                });
+            },
+        });
+
+    });
+
+</script>
+</html>
